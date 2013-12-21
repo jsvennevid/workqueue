@@ -1,12 +1,11 @@
 var workqueue = require('../lib/workqueue'),
-    cluster = require('cluster'),
-    _ = require('underscore');
+    cluster = require('cluster');
 
 if (cluster.isMaster) {
     var producer = new workqueue.Producer();
 
-    producer.post('job', { test: 'hello 1' }, function (err) {
-        console.log("result 1: " + err);
+    producer.post('job', { test: 'hello' }, function (err) {
+        console.log("result: %s", err);
     });
 } else if (cluster.isWorker) {
     var consumer = new workqueue.Consumer();
@@ -15,6 +14,12 @@ if (cluster.isMaster) {
         console.log("job");
         console.log(options);
         callback(null);
+    });
+
+    consumer.registerMethod('job2', function (options, callback) {
+        console.log("job2");
+        console.log(options);
+//        callback(null);
     });
 
     consumer.run();
